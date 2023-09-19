@@ -34,6 +34,7 @@ func removeDuplicates2(nums []int) int {
 	}
 	var slow, fast = 1, 1
 	for ; fast < n; fast++ {
+		// or nums[fast] != nums[slow-1]
 		if nums[fast] != nums[fast-1] {
 			nums[slow] = nums[fast]
 			slow++
