@@ -51,3 +51,27 @@ func merge2(nums1 []int, m int, nums2 []int, n int) {
 	}
 	copy(nums1[0:], result)
 }
+
+// merge3 3指针 降低内存使用
+func merge3(nums1 []int, m int, nums2 []int, n int) {
+	// p1指向nums1有效位置
+	// p2指向nums2有效位置
+	// p指向合成后的有效位置
+	var p1, p2, p int = m - 1, n - 1, m + n - 1
+	for p1 >= 0 && p2 >= 0 {
+		if nums1[p1] >= nums2[p2] {
+			nums1[p] = nums1[p1]
+			p1--
+		} else {
+			nums1[p] = nums2[p2]
+			p2--
+		}
+		p--
+	}
+	// 由于把数据处理到nums1 就算nums1还有元素 也不需要处理 本来就是有序
+	for p2 >= 0 {
+		nums1[p] = nums2[p2]
+		p--
+		p2--
+	}
+}
