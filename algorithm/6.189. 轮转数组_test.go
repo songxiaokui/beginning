@@ -1,4 +1,4 @@
-package problem
+package algorithm
 
 import (
 	"fmt"
