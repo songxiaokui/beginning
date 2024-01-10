@@ -1,4 +1,4 @@
-package algorithm
+package problem
 
 /*
 27. 移除元素
