@@ -1,4 +1,4 @@
-package tree
+package _go
 
 type TreeNode struct {
 	Value int
