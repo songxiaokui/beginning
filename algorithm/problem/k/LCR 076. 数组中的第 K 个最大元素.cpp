@@ -61,3 +61,20 @@ public:
         el[localtion] = ele;
     }
 };
+
+// 使用C++的内置 sort 包实现
+class Solution1 {
+public:
+    int findKthLargest(vector<int>& nums, int k) {
+        std::sort(nums.begin(), nums.end(), std::greater<int>());
+        return nums[k-1];
+    }
+};
+
+class Solution {
+public:
+    int findKthLargest(vector<int>& nums, int k) {
+        std::sort(nums.begin(), nums.end());
+        return nums[nums.size()-k];
+    }
+};
