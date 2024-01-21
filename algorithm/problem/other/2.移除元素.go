@@ -1,4 +1,4 @@
-package problem
+package other
 
 /*
 27. 移除元素
