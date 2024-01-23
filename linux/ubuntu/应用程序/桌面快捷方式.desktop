@@ -1,0 +1,8 @@
+[Desktop Entry] # 桌面应用程序的入口标识
+Name=Clion # 应用名称
+Comment=C++ IDE # 应用备注
+Exec=/home/parallels/application/clion-2023.3.2/bin/clion.sh > log.txt 2>&1 &  # 执行命令
+Icon=/home/parallels/application/clion-2023.3.2/bin/clion.png  # 应用图标
+Type=Application  # 类型
+Categories=Utility;Application;Development;  # 分类
+Terminal=false
