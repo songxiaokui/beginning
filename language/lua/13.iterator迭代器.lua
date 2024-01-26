@@ -50,7 +50,7 @@ function myIter(arr)
             y = y + 1
             return y, arr[y], 10
         end
-    end, #arr, 0
+    end, #arr, 0 -- arr的长度赋值给x 0赋值给y 只会在第一次生效
 end
 
 for i, j, l in myIter(array) do
