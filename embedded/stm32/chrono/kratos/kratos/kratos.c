@@ -1,12 +1,10 @@
 ﻿// kratos.cpp: 定义应用程序的入口点。
 //
 
-#include "kratos.h"
-
-using namespace std;
+#include "kratos.h"s
 
 int main()
 {
-	cout << "Hello CMake." << endl;
+	printf("Hello stm32");
 	return 0;
 }
