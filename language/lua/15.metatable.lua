@@ -79,3 +79,40 @@ t12 = setmetatable(t10, { __call = function(tb1)
     return result
 end })
 print(t12())
+
+-- 计算最大键值
+function table_maxn(tb)
+    local max = 0
+    for k,_ in pairs(tb) do
+        if type(k) == "number" and (max < k) then
+            max = k
+        end
+    end
+    return max
+end
+
+tb13 = {1, 2, 3, 4, name="sxk", age=18, 10, 22}
+print(#tb13)
+print(table_maxn({1, 2, 3, 4, name="sxk", age=18, 10, 22}))
+
+-- __sub 实现表的减法
+tb13 = setmetatable(tb13, {__sub= function(tb13, a)
+    for i=1,table_maxn(tb13) do
+        tb13[i] = tb13[i]-a*2
+    end
+    return tb13
+end})
+
+tb13 = tb13 - 1
+for k,v in pairs(tb13) do
+    print(k.."-"..v)
+end
+
+-- __mul 乘法 同上
+-- __div 除法 同上
+-- __mod 取余 同上
+-- __unm 变负号 同上
+
+-- __concat 连接 看具体的连接方式
+-- __lt <比较
+-- __gt >比较 实现比较操作即可
