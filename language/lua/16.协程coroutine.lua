@@ -50,7 +50,7 @@ function consumer(coroutine_obj, max)
 end
 
 function obtain(coroutine_obj, max)
-    local _, status, value = coroutine.resume(coroutine_obj, max) -- 第一个时协程的状态 不要
+    local _, status, value = coroutine.resume(coroutine_obj, max) -- 第一个是协程的状态 不要
     return status, value
 end
 
