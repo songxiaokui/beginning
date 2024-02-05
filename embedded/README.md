@@ -32,3 +32,5 @@
    (3) 应用开发
 7. 模拟电子技术基础、数字电子技术基础、FPGA、以及cadence、Altium designer原理图的设计
 8. 电路，数电，模电，51，stm32，linux
+9. 实操项目
+   [Mini打印机-STM32版](https://x509p6c8to.feishu.cn/docx/KCHkdRPC1obMjhxtXG3cNNaWnuf)
