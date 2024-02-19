@@ -95,3 +95,44 @@ class Solution:
                 hand += 1
                 move += 1
         return hand
+
+// 不使用map
+class Solution {
+public:
+    int removeDuplicates(vector<int>& nums) {
+        if (nums.size() <= 1)
+        {
+            return nums.size();
+        }
+        int hand = 0;
+        int move = 0;
+        int val = -1000000;
+        while (move < nums.size())
+        {
+            if (nums[move]-val==0)
+            {
+                move++;
+                continue;
+            }
+            nums[hand++] = nums[move++];
+            val=nums[hand-1];
+        }
+        return hand;
+    }
+};
+
+// go
+func removeDuplicates(nums []int) int {
+    var hand, move, val int = 0, 0, -100000
+    for move < len(nums) {
+        if nums[move]-val == 0 {
+            move++
+            continue
+        }
+        nums[hand] = nums[move]
+        hand++
+        move++
+        val = nums[hand-1]
+    }
+    return hand
+}
