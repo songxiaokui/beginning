@@ -1,5 +1,7 @@
 ### jq
 > 官方文档: https://jqlang.github.io/jq/
+> 在线测试工具: https://jqplay.org/
+> 操作官方手册: https://jqlang.github.io/jq/manual/
 > 
 
 ### 测试json
@@ -62,4 +64,22 @@ cat param.json|jq -j '.[] | .name'
 6. 更新值
 ```shell
 cat param.json| jq -j '.[0].name = "test01"' 
+```
+
+7. 映射到结构体
+```shell
+cat param.json| jq -j '.' | jq '.[0]' | jq  '{name: .name, id: .id}'
+
+# 输出结果
+# {
+#   "name": "兴趣点 1",
+#   "id": "5AA1FD09-268B-4A32-815A-137047E34FB6"
+# }
+```
+
+8. 映射到结构体数组
+```shell
+cat param.json| jq -j '.' | jq '.[]' | jq  '{name: .name, id: .id}'
+# 将新对象映射到列表数组中
+cat param.json | jq -j '.' | jq '[.[] | {_name: .name, _id: .id}]'
 ```
