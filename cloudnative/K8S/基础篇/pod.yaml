@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-pod
+  labels:
+    app: nginx
+    region: north
+    func: front
+    owner: sxk
+spec:
+  containers:
+    - name: nginx
+      image: nginx:latest
+      imagePullPolicy: "IfNotPresent"
+      ports:
+        - containerPort: 80
+      env:
+        - name: HostName
+          value: "sxk"
+  restartPolicy: "Always"

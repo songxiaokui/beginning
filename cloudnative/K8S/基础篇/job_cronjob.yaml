@@ -1,0 +1,29 @@
+# job
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: echo-job
+  labels:
+    author: sxk
+    app: echo-job
+spec:
+  # 控制job参数
+  backoffLimit: 2 # pod失败重试次数
+  activeDeadlineSeconds: 15 # pod超时时间限制
+  completions: 4 # Job 完成需要运行多少个 Pod，默认是 1 个
+  parallelism: 2 # 表示允许并发运行的 Pod 数量，避免过多占用资源
+
+  template:
+    # 无头pod,控制pod的行为
+    spec:
+      restartPolicy: "OnFailure"  # 重启pod的策略
+      containers:
+        - name: busybox-pod
+          imagePullPolicy: "IfNotPresent"
+          image: busybox:latest
+          command:
+            - sh
+            - -c
+            - sleep $(($RANDOM % 10 + 1)) && echo "done"
+---
+# cronjob
