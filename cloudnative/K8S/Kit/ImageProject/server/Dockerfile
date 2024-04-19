@@ -14,6 +14,7 @@ ADD go.mod .
 ADD go.sum .
 RUN go mod download
 COPY . .
+# RUN GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o /app/main main.go
 RUN go build -ldflags="-s -w" -o /app/main main.go
 
 

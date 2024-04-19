@@ -1,19 +1,17 @@
-tag=v1
 workdir:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 
 .PHONY: build
 build: ## 构建容器镜像
-	@echo docker login -u xxxx -p xxxxxx
+	@echo docker login -u erubus -p $(PW)
 	@echo "构建容器镜像"
-	@docker build -t main-server:${tag} -f Dockerfile .
-	@docker tag main-server:${tag} austsxk/main-server:${tag}
-	@docker push austsxk/main-server:${tag}
+	@docker build -t registry.austsxk.com/go/main-server:$(tag) -f Dockerfile .
+	@docker push registry.austsxk.com/go/main-server:$(tag)
 
 .PHONY: run
 run:  ## 运行
 	@echo "运行程序"
 	@docker rm -f main-server
-	@docker run -itd --name=main-server -p 8881:8881 main-server:${tag}
+	@docker run -itd --name=main-server -v $(pwd)/static:/app/static -p 8881:8881  registry.austsxk.com/go/main-server:$(tag)
 	@echo "access server: localhost:8881"
 
 help:

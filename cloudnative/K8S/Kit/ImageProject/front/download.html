@@ -1,0 +1,15 @@
+<button onclick="downloadFile('hello.html')">Download File</button>
+
+<script>
+    function downloadFile(filename) {
+        // 构建文件的URL
+        const url = `http:/154.17.26.136:8881/file/${filename}`;
+        // 动态创建一个隐藏的链接并模拟点击，开始下载
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename; // 这个属性会提示浏览器下载而不是打开
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    }
+</script>
