@@ -41,20 +41,23 @@ func (pc *PrecisionConversion[T]) Convert() T {
 	ctx := apd.BaseContext
 	ctx.Precision = pc.p
 	d, _, err := ctx.NewFromString(fmt.Sprintf("%v", pc.d))
+
 	if err != nil {
 		return pc.d
 	}
-	trimmedString := strings.TrimRight(d.String(), "0")
-	if strings.Contains(trimmedString, ".") {
-		trimmedString = strings.TrimRight(trimmedString, ".")
+	formattedStr := d.String()
+	if decimalPos := strings.Index(formattedStr, "."); decimalPos != -1 {
+		// 只去除小数点后的尾部零
+		formattedStr = strings.TrimRight(formattedStr, "0")
+		formattedStr = strings.TrimRight(formattedStr, ".")
 	}
 
 	typedVal := reflect.New(reflect.TypeOf(pc.d)).Elem()
 	switch typedVal.Kind() {
 	case reflect.String:
-		typedVal.SetString(trimmedString)
+		typedVal.SetString(formattedStr)
 	case reflect.Float64, reflect.Float32:
-		if floatVal, err := strconv.ParseFloat(trimmedString, 64); err == nil {
+		if floatVal, err := strconv.ParseFloat(formattedStr, 64); err == nil {
 
 			typedVal.SetFloat(floatVal)
 		}
@@ -66,10 +69,29 @@ func (pc *PrecisionConversion[T]) Convert() T {
 }
 func main() {
 	// 示例使用
-	p := NewPrecisionConversion(123.456).Convert()
+	p := NewPrecisionConversion(189.52408281652598, WithPrecision[float64](3)).Convert()
+	a := fmt.Sprintf("%v", NewPrecisionConversion("189.52408281652598", WithPrecision[string](3)).Convert())
+	fmt.Println(a)
 	fmt.Printf("%v, %T\n", p, p)
 	p1 := NewPrecisionConversion("2.11132").Convert()
 	fmt.Printf("%v, %T\n", p1, p1)
 	p2 := NewPrecisionConversion(int(1)).Convert()
 	fmt.Printf("%v, %T\n", p2, p2)
+
+	fmt.Println(NewPrecisionConversion("189.52408281652598", WithPrecision[string](3)).Convert())
+	fmt.Println(NewPrecisionConversion(189.52408281652598, WithPrecision[float64](3)).Convert())
+	fmt.Println(NewPrecisionConversion(0.52408281652598, WithPrecision[float64](3)).Convert())
+	fmt.Println(NewPrecisionConversion(0.00012, WithPrecision[float64](3)).Convert())
+	//fmt.Println(NewPrecisionConversion(100.00012, WithPrecision[float64](3)).Convert())
+	//fmt.Println(NewPrecisionConversion(0.15034, WithPrecision[float64](3)).Convert())
+	//fmt.Println(NewPrecisionConversion(10000.1234, WithPrecision[float64](3)).Convert())
+	//fmt.Println(NewPrecisionConversion(10.1234, WithPrecision[float64](3)).Convert())
+	//fmt.Println(NewPrecisionConversion(10.00014, WithPrecision[float64](3)).Convert())
+	//fmt.Println(NewPrecisionConversion(101234.05014, WithPrecision[float64](3)).Convert())
+
+	fmt.Println("--")
+	fmt.Println(strings.Index("1000", "."))
+	fmt.Println(strings.TrimRight("1000", "0"))
+	fmt.Println(strings.TrimRight("1000.0", "."))
+	fmt.Println(strings.TrimRight("1000.0101", "."))
 }
