@@ -1,0 +1,1 @@
+export KUBECONFIG=$(pwd)/k8s-cluster.yaml

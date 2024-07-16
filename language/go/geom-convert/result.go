@@ -45,6 +45,6 @@ func QueryResult(qid string) {
 	fmt.Println(finalUrl)
 }
 
-func main() {
-	QueryResult("1e0Rc843RPeaXX4A")
+func main2() {
+	QueryResult("65YX9s0UM4CD5tuy")
 }
