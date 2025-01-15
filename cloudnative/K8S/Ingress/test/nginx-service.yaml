@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: ingress-nginx
+  labels:
+    app: nginx-svc
+  name: nginx-svc
+spec:
+  selector:
+    app: nginx-pod
+  type: ClusterIP
+  ports:
+    - port: 80
+      protocol: TCP
+      targetPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: ingress-nginx
+  name: nginx-dep
+  labels:
+    app: nginx-dep
+spec:
+  selector:
+    matchLabels:
+      app: nginx-pod
+  replicas: 3
+  template:
+    metadata:
+      namespace: ingress-nginx
+      labels:
+        app: nginx-pod
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:alpine
+          ports:
+            - containerPort: 80
