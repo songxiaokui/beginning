@@ -1,5 +1,0 @@
-type: deepseek
-api_base_url: "https://api.deepseek.com/v1"
-api_key: ""
-model_name: "deepseek-chat"
-use_local: false

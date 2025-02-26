@@ -1,5 +1,13 @@
+port: 8080
+
 type: ollama
 api_base_url: "http://localhost:11434"
 api_key: ""
 model_name: "deepseek-r1:14b"
 use_local: true
+
+#type: deepseek
+#api_base_url: "https://api.deepseek.com/v1"
+#api_key: ""
+#model_name: "deepseek-chat"
+#use_local: false
