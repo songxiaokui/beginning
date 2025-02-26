@@ -22,7 +22,7 @@ type DeepSeekOnlineClient struct {
 func NewDeepSeekOnlineClient(cfg APIConfig) *DeepSeekOnlineClient {
 	return &DeepSeekOnlineClient{
 		config: cfg,
-		client: &http.Client{Timeout: 300 * time.Second},
+		client: &http.Client{},
 	}
 }
 

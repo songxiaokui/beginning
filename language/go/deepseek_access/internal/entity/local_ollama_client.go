@@ -18,7 +18,7 @@ type OllamaLocalClient struct {
 func NewOllamaLocalClient(cfg APIConfig) *OllamaLocalClient {
 	return &OllamaLocalClient{
 		config: cfg,
-		client: &http.Client{Timeout: 300 * time.Second},
+		client: &http.Client{},
 	}
 }
 
