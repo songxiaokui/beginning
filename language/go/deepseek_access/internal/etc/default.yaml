@@ -1,0 +1,5 @@
+type: ollama
+api_base_url: "http://localhost:11434"
+api_key: ""
+model_name: "deepseek-r1:14b"
+use_local: true
