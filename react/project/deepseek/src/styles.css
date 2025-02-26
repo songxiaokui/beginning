@@ -246,3 +246,23 @@
     align-self: flex-start;
     border-top-left-radius: 0;
 }
+
+/* 🔹 代码块样式 */
+.code-block {
+    background: #282c34;
+    color: #f8f8f2;
+    padding: 8px;
+    border-radius: 5px;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    white-space: pre-wrap;
+    word-break: break-word;
+    overflow-x: auto;
+}
+
+/* 🔹 文本换行 & 段落间距 */
+.text-line {
+    margin: 5px 0;
+    line-height: 1.6;
+}
+

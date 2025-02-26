@@ -1,7 +1,7 @@
-import { useState, useEffect, useRef } from 'react';
+import {useState, useEffect, useRef} from 'react';
 import './styles.css';
 
-function ChatWindow({ chat, updateMessages }) {
+function ChatWindow({chat, updateMessages}) {
     const [messages, setMessages] = useState(chat.messages || []);
     const [input, setInput] = useState('');
     const [loading, setLoading] = useState(false);
@@ -9,24 +9,63 @@ function ChatWindow({ chat, updateMessages }) {
     const messagesEndRef = useRef(null);
 
     useEffect(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+        messagesEndRef.current?.scrollIntoView({behavior: "smooth"});
     }, [messages]);
 
     useEffect(() => {
         setMessages(chat.messages);
     }, [chat]);
 
+    // 🔹 处理文本换行、代码高亮
+    const formatMessage = (text) => {
+        const lines = text.split('\n'); // 按换行符拆分
+        let inCodeBlock = false;
+        let formattedLines = [];
+        let codeBuffer = []; // 代码块缓存
+
+        for (let i = 0; i < lines.length; i++) {
+            let line = lines[i].trim();
+
+            // **检测 Markdown 代码块（``` 开始/结束）**
+            if (line.startsWith("```")) {
+                inCodeBlock = !inCodeBlock; // 切换代码块状态
+                if (!inCodeBlock && codeBuffer.length > 0) {
+                    // 结束代码块，渲染代码
+                    formattedLines.push(
+                        <pre key={i} className="code-block">
+                        <code>{codeBuffer.join('\n')}</code>
+                    </pre>
+                    );
+                    codeBuffer = []; // 清空代码缓冲
+                }
+                continue;
+            }
+
+            if (inCodeBlock) {
+                codeBuffer.push(line); // **存入代码块**
+            } else {
+                if (line !== "") {
+                    formattedLines.push(<p key={i} className="text-line">{line}</p>); // **普通文本自动换行**
+                }
+            }
+        }
+
+        return formattedLines;
+    };
+
+
+
     const handleStream = async (message) => {
         try {
             setLoading(true);
-            const assistantMessage = { role: 'assistant', content: '' };
+            const assistantMessage = {role: 'assistant', content: ''};
             setMessages(prev => [...prev, assistantMessage]); // 先创建一个空的 AI 消息
             controllerRef.current = new AbortController();
 
             const response = await fetch('http://localhost:8080/api/chat/stream', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message, stream: true }),
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({message, stream: true}),
                 signal: controllerRef.current.signal
             });
 
@@ -35,10 +74,10 @@ function ChatWindow({ chat, updateMessages }) {
             let buffer = '';
 
             while (true) {
-                const { done, value } = await reader.read();
+                const {done, value} = await reader.read();
                 if (done) break;
 
-                buffer += decoder.decode(value, { stream: true });
+                buffer += decoder.decode(value, {stream: true});
 
                 // 解析 SSE 数据
                 while (buffer.includes('\n\n')) {
@@ -84,7 +123,7 @@ function ChatWindow({ chat, updateMessages }) {
             }
         } catch (err) {
             console.error('请求失败:', err);
-            setMessages(prev => [...prev, { role: 'error', content: '请求失败' }]);
+            setMessages(prev => [...prev, {role: 'error', content: '请求失败'}]);
         } finally {
             setLoading(false);
         }
@@ -94,7 +133,7 @@ function ChatWindow({ chat, updateMessages }) {
         e.preventDefault();
         if (!input.trim() || loading) return;
 
-        const newMessages = [...messages, { role: 'user', content: input }];
+        const newMessages = [...messages, {role: 'user', content: input}];
         setMessages(newMessages);
         updateMessages(chat.id, newMessages);
         setInput('');
@@ -113,13 +152,13 @@ function ChatWindow({ chat, updateMessages }) {
                                 alt={msg.role}
                             />
                         </div>
-                        {/* 消息气泡 */}
+                        {/* 消息内容，格式化显示 */}
                         <div className={`message ${msg.role}`}>
-                            <div className="content">{msg.content || '思考中...'}</div>
+                            <div className="content">{formatMessage(msg.content)}</div>
                         </div>
                     </div>
                 ))}
-                <div ref={messagesEndRef} />
+                <div ref={messagesEndRef}/>
             </div>
 
             <form onSubmit={handleSubmit} className="input-area">
@@ -130,7 +169,7 @@ function ChatWindow({ chat, updateMessages }) {
                     disabled={loading}
                 />
                 <button type="submit" disabled={loading}>
-                    {loading ? '发送中...' : '发送'}
+                    {loading ? '处理中...' : '发送'}
                 </button>
             </form>
         </div>
