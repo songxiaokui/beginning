@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
+    <!-- 背景 -->
+    <rect width="800" height="600" fill="#ffffff"/>
+    
+    <!-- 标题 -->
+    <text x="400" y="40" text-anchor="middle" font-size="24" font-weight="bold" fill="#333333">3FS 分布式文件系统架构</text>
+    
+    <!-- 管理节点(MGMTD) -->
+    <rect x="350" y="80" width="120" height="60" rx="5" fill="#4a90e2" opacity="0.8"/>
+    <text x="410" y="115" text-anchor="middle" fill="white" font-size="14">管理节点</text>
+    <text x="410" y="130" text-anchor="middle" fill="white" font-size="12">(MGMTD)</text>
+    
+    <!-- 元数据服务(Meta) -->
+    <rect x="150" y="200" width="120" height="60" rx="5" fill="#50c878" opacity="0.8"/>
+    <text x="210" y="235" text-anchor="middle" fill="white" font-size="14">元数据服务</text>
+    <text x="210" y="250" text-anchor="middle" fill="white" font-size="12">(Meta)</text>
+    
+    <!-- 存储服务(Storage) -->
+    <rect x="550" y="200" width="120" height="60" rx="5" fill="#50c878" opacity="0.8"/>
+    <text x="610" y="235" text-anchor="middle" fill="white" font-size="14">存储服务</text>
+    <text x="610" y="250" text-anchor="middle" fill="white" font-size="12">(Storage)</text>
+    
+    <!-- 客户端(Client) -->
+    <rect x="350" y="320" width="120" height="60" rx="5" fill="#f5a623" opacity="0.8"/>
+    <text x="410" y="355" text-anchor="middle" fill="white" font-size="14">客户端</text>
+    <text x="410" y="370" text-anchor="middle" fill="white" font-size="12">(Client)</text>
+    
+    <!-- FUSE接口 -->
+    <rect x="350" y="440" width="120" height="60" rx="5" fill="#d0021b" opacity="0.8"/>
+    <text x="410" y="475" text-anchor="middle" fill="white" font-size="14">FUSE接口</text>
+    
+    <!-- 连接线 -->
+    <!-- MGMTD到Meta和Storage的连接 -->
+    <line x1="410" y1="140" x2="210" y2="200" stroke="#666" stroke-width="2" marker-end="url(#arrowhead)"/>
+    <line x1="410" y1="140" x2="610" y2="200" stroke="#666" stroke-width="2" marker-end="url(#arrowhead)"/>
+    
+    <!-- Meta和Storage到Client的连接 -->
+    <line x1="270" y1="260" x2="350" y2="320" stroke="#666" stroke-width="2" marker-end="url(#arrowhead)"/>
+    <line x1="550" y1="260" x2="470" y2="320" stroke="#666" stroke-width="2" marker-end="url(#arrowhead)"/>
+    
+    <!-- Client到FUSE的连接 -->
+    <line x1="410" y1="380" x2="410" y2="440" stroke="#666" stroke-width="2" marker-end="url(#arrowhead)"/>
+    
+    <!-- 箭头定义 -->
+    <defs>
+        <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" fill="#666"/>
+        </marker>
+    </defs>
+    
+    <!-- 图例 -->
+    <rect x="50" y="500" width="15" height="15" fill="#4a90e2" opacity="0.8"/>
+    <text x="75" y="512" font-size="12">管理服务</text>
+    
+    <rect x="150" y="500" width="15" height="15" fill="#50c878" opacity="0.8"/>
+    <text x="175" y="512" font-size="12">核心服务</text>
+    
+    <rect x="250" y="500" width="15" height="15" fill="#f5a623" opacity="0.8"/>
+    <text x="275" y="512" font-size="12">客户端服务</text>
+    
+    <rect x="350" y="500" width="15" height="15" fill="#d0021b" opacity="0.8"/>
+    <text x="375" y="512" font-size="12">文件系统接口</text>
+</svg>

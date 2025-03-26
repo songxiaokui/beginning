@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1200" height="800" xmlns="http://www.w3.org/2000/svg">
+  <!-- 定义箭头标记 -->
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#666"/>
+    </marker>
+    <marker id="read-arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#4CAF50"/>
+    </marker>
+    <marker id="write-arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#F44336"/>
+    </marker>
+  </defs>
+
+  <!-- 背景 -->
+  <rect width="1200" height="800" fill="#f8f9fa"/>
+
+  <!-- 标题 -->
+  <text x="600" y="40" text-anchor="middle" font-size="24" font-weight="bold" fill="#333">3FS 数据流图</text>
+
+  <!-- 客户端层 -->
+  <g transform="translate(0,100)">
+    <rect x="50" y="0" width="200" height="60" rx="5" fill="#E3F2FD" stroke="#2196F3" stroke-width="2"/>
+    <text x="150" y="35" text-anchor="middle" font-size="16">FUSE 接口</text>
+
+    <rect x="50" y="100" width="200" height="60" rx="5" fill="#E3F2FD" stroke="#2196F3" stroke-width="2"/>
+    <text x="150" y="135" text-anchor="middle" font-size="16">客户端组件</text>
+  </g>
+
+  <!-- 元数据服务层 -->
+  <g transform="translate(400,100)">
+    <rect x="50" y="0" width="200" height="60" rx="5" fill="#FFF3E0" stroke="#FF9800" stroke-width="2"/>
+    <text x="150" y="35" text-anchor="middle" font-size="16">元数据服务</text>
+
+    <rect x="50" y="100" width="200" height="60" rx="5" fill="#FFF3E0" stroke="#FF9800" stroke-width="2"/>
+    <text x="150" y="135" text-anchor="middle" font-size="16">MetaCache</text>
+  </g>
+
+  <!-- 存储服务层 -->
+  <g transform="translate(750,100)">
+    <rect x="50" y="0" width="200" height="60" rx="5" fill="#E8F5E9" stroke="#4CAF50" stroke-width="2"/>
+    <text x="150" y="35" text-anchor="middle" font-size="16">存储服务 (主)</text>
+
+    <rect x="50" y="100" width="200" height="60" rx="5" fill="#E8F5E9" stroke="#4CAF50" stroke-width="2"/>
+    <text x="150" y="135" text-anchor="middle" font-size="16">存储服务 (副本)</text>
+  </g>
+
+  <!-- 写入流程 -->
+  <g>
+    <!-- FUSE到客户端 -->
+    <path d="M250,180 L400,180" stroke="#F44336" stroke-width="2" marker-end="url(#write-arrow)" fill="none"/>
+    <text x="325" y="170" text-anchor="middle" font-size="14" fill="#F44336">写入请求</text>
+
+    <!-- 客户端到元数据服务 -->
+    <path d="M450,180 L600,180" stroke="#F44336" stroke-width="2" marker-end="url(#write-arrow)" fill="none"/>
+    <text x="525" y="170" text-anchor="middle" font-size="14" fill="#F44336">更新元数据</text>
+
+    <!-- 元数据服务到存储服务 -->
+    <path d="M650,180 L800,130" stroke="#F44336" stroke-width="2" marker-end="url(#write-arrow)" fill="none"/>
+    <text x="725" y="140" text-anchor="middle" font-size="14" fill="#F44336">CRAQ写入</text>
+
+    <!-- 主存储到副本 -->
+    <path d="M850,160 L850,200" stroke="#F44336" stroke-width="2" marker-end="url(#write-arrow)" fill="none"/>
+    <text x="900" y="180" text-anchor="middle" font-size="14" fill="#F44336">复制数据</text>
+  </g>
+
+  <!-- 读取流程 -->
+  <g>
+    <!-- FUSE到客户端 -->
+    <path d="M250,130 L400,130" stroke="#4CAF50" stroke-width="2" marker-end="url(#read-arrow)" fill="none"/>
+    <text x="325" y="120" text-anchor="middle" font-size="14" fill="#4CAF50">读取请求</text>
+
+    <!-- 客户端到元数据服务 -->
+    <path d="M450,130 L600,130" stroke="#4CAF50" stroke-width="2" marker-end="url(#read-arrow)" fill="none"/>
+    <text x="525" y="120" text-anchor="middle" font-size="14" fill="#4CAF50">查询元数据</text>
+
+    <!-- 元数据服务到存储服务 -->
+    <path d="M650,130 L800,180" stroke="#4CAF50" stroke-width="2" marker-end="url(#read-arrow)" fill="none"/>
+    <text x="725" y="170" text-anchor="middle" font-size="14" fill="#4CAF50">并发读取</text>
+  </g>
+
+  <!-- 图例 -->
+  <g transform="translate(50,600)">
+    <rect x="0" y="0" width="20" height="20" fill="#F44336"/>
+    <text x="30" y="15" font-size="14">写入流程</text>
+
+    <rect x="120" y="0" width="20" height="20" fill="#4CAF50"/>
+    <text x="150" y="15" font-size="14">读取流程</text>
+  </g>
+
+  <!-- 说明文本 -->
+  <g transform="translate(50,650)">
+    <text x="0" y="0" font-size="14" fill="#666">
+      <tspan x="0" dy="20">1. 写入流程采用CRAQ协议确保数据一致性</tspan>
+      <tspan x="0" dy="20">2. 读取流程支持并发优化，提高吞吐量</tspan>
+      <tspan x="0" dy="20">3. MetaCache维护内存中的chunk映射关系</tspan>
+    </text>
+  </g>
+</svg>
