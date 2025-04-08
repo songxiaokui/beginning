@@ -21,3 +21,5 @@
 go.work
 
 .idea
+/BigModel/MCP/weather/server/.idea/
+/BigModel/MCP/weather/server/.venv/
