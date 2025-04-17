@@ -25,13 +25,23 @@ func generateSignature(secretKey, method, path, body string, timestamp int64) st
 	return hex.EncodeToString(h.Sum(nil))
 }
 
-// 发送请求
-func (c *Client) sendRequest(method, path string, body []byte) (string, error) {
+// SendRequest 发送请求
+func (c *Client) SendRequest(method, path string, body []byte) (string, error) {
 	url := c.BaseURL + path
-	timestamp := time.Now().Unix()
-	signature := generateSignature(c.SecretKey, method, path, string(body), timestamp)
+	timestamp := time.Now().UnixMilli() // 使用毫秒级时间戳提高精度
+	bodyStr := ""                       // 默认空字符串
+	if body != nil {
+		bodyStr = string(body) // 只有非 nil 时转换为字符串
+	}
+	signature := generateSignature(c.SecretKey, method, path, bodyStr, timestamp)
 
-	req, _ := http.NewRequest(method, url, bytes.NewBuffer(body))
+	// 调试日志
+	fmt.Printf("Client: method=%s, path=%s, body=%s, timestamp=%d, signature=%s\n", method, path, bodyStr, timestamp, signature)
+
+	req, err := http.NewRequest(method, url, bytes.NewBuffer(body))
+	if err != nil {
+		return "", fmt.Errorf("create request failed: %v", err)
+	}
 	req.Header.Set("App-ID", c.AppID)
 	req.Header.Set("Signature", signature)
 	req.Header.Set("Timestamp", fmt.Sprintf("%d", timestamp))
@@ -40,20 +50,23 @@ func (c *Client) sendRequest(method, path string, body []byte) (string, error) {
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("send request failed: %v", err)
 	}
 	defer resp.Body.Close()
 
-	respBody, _ := ioutil.ReadAll(resp.Body)
+	respBody, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return "", fmt.Errorf("read response body failed: %v", err)
+	}
 	return string(respBody), nil
 }
 
 // SubmitJob 提交任务
 func (c *Client) SubmitJob() (string, error) {
-	return c.sendRequest("GET", "/api/submit", nil)
+	return c.SendRequest("GET", "/api/submit", nil)
 }
 
 // CancelJob 取消任务
 func (c *Client) CancelJob() (string, error) {
-	return c.sendRequest("GET", "/api/cancel", nil)
+	return c.SendRequest("GET", "/api/cancel", nil)
 }
