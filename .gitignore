@@ -24,3 +24,4 @@ go.work
 /BigModel/MCP/weather/server/.idea/
 /BigModel/MCP/weather/server/.venv/
 /BigModel/LangChain/SourceCode/.venv/
+/BigModel/LangChain/SourceCode/.env
