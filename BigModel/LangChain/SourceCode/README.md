@@ -11,6 +11,8 @@ pip install langchain langchain-community langchain-openai
 pip install openai
 # 安装向量数据库
 pip install chroma
+# 安装langgraph
+pip install langgraph
 ```
 
 ### 安装Notebook
@@ -45,4 +47,11 @@ pip install langchain_deepseek
 ### 环境搭建
 ```shell
 make init
+```
+
+### 理念
+```text
+LangChain = 模型接口标准化
+LangGraph = Agent 推理编排器（像 K8s）
+LangSmith = 调试与监控工具（像 Prometheus + Sidecar）
 ```
