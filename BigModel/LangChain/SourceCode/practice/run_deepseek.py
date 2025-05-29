@@ -1,13 +1,13 @@
 from langchain_deepseek import ChatDeepSeek
 from practice.init_env import init_env, api_key
-from langchain_openai import ChatOpenAI
-from langchain.schema import HumanMessage
-import os
 
-init_env()
+from langchain.schema import HumanMessage
+from singleton_client import get_client
+import os
 
 
 def three_package_call():
+    init_env()
     llm = ChatDeepSeek(
         temperature=0,
         max_tokens=None,
@@ -23,21 +23,14 @@ def three_package_call():
 
 
 def standard_call():
-    chat = ChatOpenAI(
-        openai_api_key=os.getenv("DEEPSEEK_API_KEY"),
-        openai_api_base="https://api.deepseek.com/v1",
-        model_name="deepseek-chat",
-    )
-
-    # 调用返回
-    response = chat.invoke([
+    response = get_client().invoke([
         HumanMessage(content="你好啊，我是武安君？")
     ])
 
     print(response.content)
 
     # 流式返回
-    data_stream = chat.stream([
+    data_stream = get_client().stream([
         HumanMessage(content="给我介绍一下战国时期的武安君，字数控制在100字之内")
     ])
 

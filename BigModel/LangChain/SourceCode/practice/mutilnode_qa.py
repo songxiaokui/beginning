@@ -4,11 +4,11 @@
 """
 from typing import TypedDict
 from langchain.schema import BaseMessage, AIMessage, HumanMessage
-from chatbot_interactive import client
 from langgraph.graph import START, StateGraph
 from langgraph.checkpoint.memory import MemorySaver
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 import asyncio
+from  singleton_client import get_client
 
 
 class MutilAgentState(TypedDict):
@@ -21,7 +21,7 @@ async def qa_model(state: MutilAgentState):
     # 使用提示词工程
     prompt = await new_knowledge_prompt_message().ainvoke(state)
 
-    response = await client().ainvoke(prompt)
+    response = await get_client().ainvoke(prompt)
     return {"qa_response": response.content}
 
 
@@ -29,7 +29,7 @@ async def emotion_model(state: MutilAgentState):
     # 使用提示词工程
     prompt = await new_emotion_prompt_message().ainvoke(state)
 
-    response = await client().ainvoke(prompt)
+    response = await get_client().ainvoke(prompt)
     return {"emotion_response": response.content}
 
 

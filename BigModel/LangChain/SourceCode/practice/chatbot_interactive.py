@@ -7,33 +7,17 @@
 pip install langchain-core langgraph>0.2.27
 
 """
-import getpass
-import os
-from langchain_deepseek import ChatDeepSeek
-from practice.init_env import init_env, api_key
 from langchain_openai import ChatOpenAI
 from langchain.schema import HumanMessage, AIMessage
-import os
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.graph import START, MessagesState, StateGraph
 import asyncio
-
-init_env()
-
-
-def client() -> ChatOpenAI:
-    _chat = ChatOpenAI(
-        openai_api_key=os.getenv("DEEPSEEK_API_KEY"),
-        openai_api_base="https://api.deepseek.com/v1",
-        model_name="deepseek-chat",
-    )
-
-    return _chat
+from singleton_client import get_client
 
 
 def manual_memory() -> None:
     # 调用返回
-    response = client().invoke([
+    response = get_client().invoke([
         HumanMessage(content="你好啊，我是晓奎？"),
         AIMessage(
             content="你好啊，晓奎！😊 很高兴认识你～今天有什么想聊的，或者需要帮忙的吗？无论是闲聊、问题解答，还是随便聊聊日常，我都在这里哦！✨"),
@@ -51,11 +35,11 @@ def message_persistence(_client: ChatOpenAI, messages: list[HumanMessage]) -> No
 
 
 async def call_model(state: MessagesState):
-    return {"messages": await client().ainvoke(state["messages"])}
+    return {"messages": await get_client().ainvoke(state["messages"])}
 
 
 def call_model2(state: MessagesState):
-    return {"messages": client().invoke(state["messages"])}
+    return {"messages": get_client().invoke(state["messages"])}
 
 
 def new_app():
