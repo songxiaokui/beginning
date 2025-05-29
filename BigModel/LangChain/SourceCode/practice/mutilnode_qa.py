@@ -8,13 +8,14 @@ from langgraph.graph import START, StateGraph
 from langgraph.checkpoint.memory import MemorySaver
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 import asyncio
-from  singleton_client import get_client
+from singleton_client import get_client
 
 
 class MutilAgentState(TypedDict):
     messages: list[BaseMessage]
     qa_response: str  # QA
     emotion_response: str  # 情感
+    language: str
 
 
 async def qa_model(state: MutilAgentState):
@@ -44,7 +45,7 @@ def new_emotion_prompt_message() -> ChatPromptTemplate:
     return ChatPromptTemplate.from_messages(
         [
             ("system",
-             "你现在是一个经验丰富的情感大师，只可以灵活的处理用户问题中只关于情感的部分话题，除了情感话题，你啥也处理不了，也不要去处理非情感话题"),
+             "你现在是一个经验丰富的情感大师，只可以灵活的处理用户问题中只关于情感的部分话题，除了情感话题，你啥也处理不了，也不要去处理非情感话题, 请使用语言 {language} 进行回复"),
             MessagesPlaceholder(variable_name="messages"),
         ]
     )
@@ -54,7 +55,7 @@ def new_knowledge_prompt_message() -> ChatPromptTemplate:
     return ChatPromptTemplate.from_messages(
         [
             ("system",
-             "你现在是百科全书，不要去处理人类情感问题，这里水太深，小老弟你把握不住，你就老老实实处理历史、哲学、以及非情感的所有问题，记住，你不擅长情感问题，你不要回复关于情感的问题"),
+             "你现在是百科全书，不要去处理人类情感问题，这里水太深，小老弟你把握不住，你就老老实实处理历史、哲学、以及非情感的所有问题，记住，你不擅长情感问题，你不要回复关于情感的问题，请使用语言 {language} 进行回复"),
             MessagesPlaceholder(variable_name="messages"),
         ]
     )
@@ -77,9 +78,11 @@ def new_mutil_node_app():
 
 async def run():
     state = {
-        "messages": [HumanMessage("我今天很郁闷，同时想知道秦始皇是谁")]
+        "messages": [HumanMessage("杭州富阳场口考驾照，周末的话和工作日比，啥时候人多，啥时候人少，顺便分析一个，周六周日的通过率，科二科三，是啥时候去最好，这是分析问题，情感不要回复了")],
+        "language": "English",
     }
     app = new_mutil_node_app()
+    print("用户提出的问题: ", state["messages"][-1].content)
     output = await app.ainvoke(state, config={"configurable": {"thread_id": "multi_001"}})
     print(output["messages"][-1].content)
 
