@@ -8,10 +8,10 @@ export default  function SubmitButton({checkin}) {
         const today = new Date().toISOString().slice(0, 10);
         try {
             await axios.post("/api/checkin", { date: today, config: checkin });
-            toast.success("✅ 提交成功！", { duration: 2000 });
+            toast.success("提交成功！", { duration: 2000 });
         } catch (err) {
             console.error(err);
-            toast.error("❌ 提交失败，请重试！", { duration: 2000 });
+            toast.error("提交失败，请重试！", { duration: 2000 });
         }
     };
 

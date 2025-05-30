@@ -1,13 +1,32 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 type Message = {
     role: "user" | "assistant";
     content: string;
 };
 
+const STORAGE_KEY = "nutrition_chat_history";
+
 export default function NutritionAssistant({ checkin }: { checkin: any }) {
-    const [messages, setMessages] = useState<Message[]>([]);
+    const [messages, setMessages] = useState<Message[]>(() => {
+        try {
+            const stored = localStorage.getItem(STORAGE_KEY);
+            if (stored) {
+                const parsed = JSON.parse(stored);
+                if (Array.isArray(parsed)) return parsed;
+            }
+        } catch (e) {
+            console.warn("历史消息初始化失败:", e);
+        }
+        return [];
+    });
+
     const [input, setInput] = useState("");
+
+    useEffect(() => {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
+    }, [messages]);
+
     //@ts-ignore
     const handleSend = async () => {
         if (!input.trim()) return;
@@ -62,8 +81,10 @@ export default function NutritionAssistant({ checkin }: { checkin: any }) {
                 {messages.map((msg, i) => (
                     <div
                         key={i}
-                        className={`p-2 rounded ${
-                            msg.role === "user" ? "bg-blue-100 text-right" : "bg-gray-100 text-left"
+                        className={`p-2 rounded whitespace-pre-wrap ${
+                            msg.role === "user"
+                                ? "bg-blue-100 text-right"
+                                : "bg-gray-100 text-left"
                         }`}
                     >
                         {msg.content}
