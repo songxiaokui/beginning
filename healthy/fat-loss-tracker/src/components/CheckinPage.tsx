@@ -52,10 +52,9 @@ export default function CheckinPage() {
 
     return (
         <div
-            className="relative flex flex-col items-center justify-center space-y-0 min-h-screen overflow-hidden p-6 bg-cover bg-center"
-            style={{backgroundImage: `url(${backgroundImage})`}}
+            className="min-h-screen bg-gradient-to-b from-white to-blue-50 flex items-center justify-center bg-gradient-to-r from-blue-100 to-green-100"
         >
-            <div className="absolute inset-0 bg-white/20 backdrop-blur-sm z-0"></div>
+            <div className="absolute inset-0 bg-white/10 backdrop-blur-sm z-0"></div>
 
             <div className="relative z-10 w-full max-w-md p-6 bg-white/80 rounded-xl shadow bg-gradient-to-r from-blue-80 to-green-50">
                 <h1 className="text-2xl font-bold text-center mb-4">减脂养成打卡</h1>

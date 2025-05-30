@@ -6,7 +6,7 @@ from datetime import date
 app = Flask(__name__)
 CORS(app)
 
-DB_NAME = '../database/checkin.db'
+DB_NAME = './db/checkin.db'
 
 
 def init_db():
@@ -86,4 +86,4 @@ def post_checkin():
 
 if __name__ == '__main__':
     init_db()
-    app.run(debug=True, port=5011, host="0.0.0.0")
+    app.run(debug=True, port=5001, host="0.0.0.0")
