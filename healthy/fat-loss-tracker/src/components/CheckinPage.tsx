@@ -8,6 +8,8 @@ import { useState, useEffect } from "react";
 import axios from 'axios';
 import SubmitButton from "./Submit/SubmitButton";
 import {Toaster} from "react-hot-toast";
+import ChatPop from "./ChatAI/ChatPop"
+import NutritionAssistant from "./ChatAI/NutritionAssistant";
 
 
 export default function CheckinPage() {
@@ -20,6 +22,7 @@ export default function CheckinPage() {
     });
 
     const [loading, setLoading] = useState(true);
+    const [showChat, setShowChat] = useState(false);
 
     useEffect(() => {
         // @ts-ignore
@@ -50,6 +53,8 @@ export default function CheckinPage() {
                 <TodayExercise />
                 <SubmitButton checkin={checkin}/>
             </div>
+            <ChatPop onClick={() => setShowChat(!showChat)} />
+            {showChat && <NutritionAssistant checkin={checkin} />}
         </div>
     );
 }
