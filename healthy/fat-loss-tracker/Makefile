@@ -25,6 +25,8 @@ build:  ## build image
 	@docker build . -t ${IMAGE} --platform=linux/${ARCH}
 	@docker push ${IMAGE}
 	@${SED_INPLACE} "s/\(FRONT_SERVICE_VERSION=\)\(.*\)/\1${VERSION}/" $(CURDIR)/.env
+	@cd $(CURDIR)/devops && ./deploy.sh
+	@echo "deploy successfully"
 
 .DEFAULT_GOAL: help
 help:
