@@ -2,7 +2,7 @@ from langchain_deepseek import ChatDeepSeek
 from practice.init_env import init_env, api_key
 
 from langchain.schema import HumanMessage
-from singleton_client import get_client
+from singleton_client import get_qwen_client
 import os
 
 
@@ -23,14 +23,14 @@ def three_package_call():
 
 
 def standard_call():
-    response = get_client().invoke([
+    response = get_qwen_client().invoke([
         HumanMessage(content="你好啊，我是武安君？")
     ])
 
     print(response.content)
 
     # 流式返回
-    data_stream = get_client().stream([
+    data_stream = get_qwen_client().stream([
         HumanMessage(content="给我介绍一下战国时期的武安君，字数控制在100字之内")
     ])
 
