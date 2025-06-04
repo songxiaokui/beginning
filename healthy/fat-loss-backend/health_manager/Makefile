@@ -17,7 +17,7 @@ else
 endif
 
 .PHONY: build
-build:  ## build image
+build:  ## 构建容器镜像
 	@pip uninstall backports.zoneinfo
 	@pip freeze > requirements.txt
 	@echo "going to build image: ${IMAGE}"
@@ -25,7 +25,7 @@ build:  ## build image
 	#@#docker push ${IMAGE}
 
 
-.PHONY: start collectstatic run run_container format
+.PHONY: start collectstatic run run_container format migrate
 start:
 	@echo "Starting server..."
 	@pip install backports.zoneinfo
@@ -46,6 +46,10 @@ run_container:  ## 容器化运行
 format:  ## 格式化代码
 	@echo "format code"
 	@black .
+
+migrate:  ## 迁移数据库
+	@python manage.py makemigrations
+	@python manage.py migrate
 
 .DEFAULT_GOAL: help
 help:
