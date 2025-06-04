@@ -6,7 +6,7 @@ DEP_TAG?=""
 ARCH=arm64
 WAREHOUSE_NAME := austsxk
 IMAGE_NAME=fatloss_backend
-IMAGE=${WAREHOUSE_NAME}/${IMAGE_NAME}_${ARCH}:${VERSION}-2
+IMAGE=${WAREHOUSE_NAME}/${IMAGE_NAME}_${ARCH}:${VERSION}
 
 UNAME_S := $(shell uname)
 
@@ -18,7 +18,7 @@ endif
 
 .PHONY: build
 build:  ## 构建容器镜像
-	@pip uninstall backports.zoneinfo
+	@pip uninstall backports.zoneinfo -y
 	@pip freeze > requirements.txt
 	@echo "going to build image: ${IMAGE}"
 	@docker build . -t ${IMAGE} --platform=linux/${ARCH}
@@ -41,7 +41,9 @@ run:  ## 生产环境运行
 
 run_container:  ## 容器化运行
 	@echo "容器化运行"
-	@docker-compose up
+	@docker-compose up -d
+	@echo "迁移数据库"
+	@docker exec -it health-checkin-web sh -c "cd /app; python manage.py makemigrations; python manage.py migrate"
 
 format:  ## 格式化代码
 	@echo "format code"
