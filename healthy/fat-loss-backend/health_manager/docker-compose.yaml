@@ -1,0 +1,16 @@
+version: '3'
+
+services:
+  health_backend:
+    image: austsxk/fatloss_backend_${ARCH}:${VERSION}
+    container_name: health-checkin-web
+    ports:
+      - "5011:5011"
+    environment:
+      - DJANGO_SETTINGS_MODULE=health_manager.settings
+      - DB_HOST=${DB_HOST}
+      # 如果你还用到数据库（已通过外部连接 MySQL），这里可传入配置
+      # - DB_NAME=health_db
+      # - DB_USER=health_user
+      # - DB_PASSWORD=health_pass
+    restart: always

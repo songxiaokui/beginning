@@ -1,0 +1,14 @@
+version: '3.8'
+services:
+  mysql:
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: adminAust
+      MYSQL_DATABASE: health
+      MYSQL_USER: sxk
+      MYSQL_PASSWORD: adminAust
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./mysql_data:/var/lib/mysql
+    restart: always
