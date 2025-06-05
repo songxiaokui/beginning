@@ -22,7 +22,7 @@ build:  ## 构建容器镜像
 	@pip freeze > requirements.txt
 	@echo "going to build image: ${IMAGE}"
 	@docker build . -t ${IMAGE} --platform=linux/${ARCH}
-	#@#docker push ${IMAGE}
+	@docker push ${IMAGE}
 
 
 .PHONY: start collectstatic run run_container format migrate
