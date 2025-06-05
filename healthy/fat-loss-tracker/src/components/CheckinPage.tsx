@@ -28,8 +28,8 @@ export default function CheckinPage() {
         // @ts-ignore
         const fetchCheckin = async () => {
             try {
-                const today = new Date().toISOString().slice(0, 10);
-                const res = await axios.get(`/api/checkin?date=${today}`);
+                const user_id = 1;
+                const res = await axios.get(`/api/checkin?user_id=${user_id}`);
                 if (res.data) {
                     setCheckin(res.data);
                 }

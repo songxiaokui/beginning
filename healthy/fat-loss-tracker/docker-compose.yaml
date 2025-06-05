@@ -8,11 +8,3 @@ services:
       - ${CONFIG_PATH}/nginx.conf:/etc/nginx/conf.d/default.conf
     ports:
       - ${PORT}:80
-  backend:
-    image: austsxk/${BACKEND_SERVICE_NAME}_${ARCH}:${BACKEND_SERVICE_VERSION}
-    container_name: ${BACKEND_SERVICE_NAME}
-    restart: always
-    volumes:
-      - ${STORAGE_PATH}:/app/db
-    ports:
-      - ${BACKEND_PORT}:5001

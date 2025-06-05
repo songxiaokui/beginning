@@ -7,7 +7,7 @@ export default  function SubmitButton({checkin}) {
     const handleSubmit = async () => {
         const today = new Date().toISOString().slice(0, 10);
         try {
-            await axios.post("/api/checkin", { date: today, config: checkin });
+            await axios.post("/api/checkin/submit", { date: today, config: checkin, user_id: 1 });
             toast.success("提交成功！", { duration: 2000 });
         } catch (err) {
             console.error(err);
