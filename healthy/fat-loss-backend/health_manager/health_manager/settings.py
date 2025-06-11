@@ -83,7 +83,8 @@ DATABASES = {
         "NAME": "health",
         "USER": "root",
         "PASSWORD": "adminAust",
-        "HOST": os.getenv("DB_HOST", "192.168.9.191"),
+        "HOST": os.getenv("DB_HOST", "192.168.31.21"),
+        #"HOST": os.getenv("DB_HOST", "192.168.9.191"),
         "PORT": "3306",
         "OPTIONS": {
             "init_command": "SET sql_mode='STRICT_TRANS_TABLES'",
