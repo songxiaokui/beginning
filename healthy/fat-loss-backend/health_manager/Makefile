@@ -18,7 +18,6 @@ endif
 
 .PHONY: build
 build:  ## 构建容器镜像
-	@pip uninstall backports.zoneinfo -y
 	@pip freeze > requirements.txt
 	@echo "going to build image: ${IMAGE}"
 	@docker build . -t ${IMAGE} --platform=linux/${ARCH}
@@ -28,7 +27,6 @@ build:  ## 构建容器镜像
 .PHONY: start collectstatic run run_container format migrate
 start:
 	@echo "Starting server..."
-	@pip install backports.zoneinfo
 	@python manage.py runserver 0.0.0.0:5011
 
 collectstatic: ## 收集静态文件

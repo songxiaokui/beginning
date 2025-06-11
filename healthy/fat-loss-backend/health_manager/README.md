@@ -48,3 +48,8 @@ python manage.py createsuperuser
 ```shell
 pip install black
 ```
+
+9. 安装langchain相关的大模型库
+```shell
+pip install langchain langchain-community langchain-openai  openai langgraph langchain_deepseek chroma  
+```

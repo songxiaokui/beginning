@@ -38,7 +38,7 @@ export default function NutritionAssistant({ checkin }: { checkin: any }) {
             const res = await fetch("/api/chat", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ message: input, checkin }),
+                body: JSON.stringify({ message: input, checkin, user_id: 1}),
             });
 
             if (!res.ok || !res.body) {

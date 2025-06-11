@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "checkin",
+    "chat",
 ]
 
 MIDDLEWARE = [
@@ -82,7 +83,7 @@ DATABASES = {
         "NAME": "health",
         "USER": "root",
         "PASSWORD": "adminAust",
-        "HOST": os.getenv("DB_HOST", "health_storage"),
+        "HOST": os.getenv("DB_HOST", "192.168.9.191"),
         "PORT": "3306",
         "OPTIONS": {
             "init_command": "SET sql_mode='STRICT_TRANS_TABLES'",
@@ -132,3 +133,4 @@ STATIC_URL = "static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 STATIC_ROOT = BASE_DIR / "staticfiles"
+APPEND_SLASH = False
