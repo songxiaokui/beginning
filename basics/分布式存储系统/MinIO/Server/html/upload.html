@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <title>Upload Geometry to SimuReal</title>
+  <style>
+    body {
+      background-color: #f0f2f5;
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 480px;
+      margin: 60px auto;
+      background-color: #ffffff;
+      border-radius: 10px;
+      padding: 30px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #333;
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    input[type="file"] {
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button {
+      padding: 10px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      font-size: 16px;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    #result, .error {
+      margin-top: 15px;
+      text-align: center;
+      font-size: 14px;
+    }
+    #result {
+      color: #28a745;
+    }
+    .error {
+      color: #dc3545;
+    }
+    a {
+      color: #007bff;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Upload Geometry to SimuReal</h2>
+    <form id="uploadForm">
+      <input type="file" name="file" id="fileInput" required />
+      <button type="submit">Upload</button>
+    </form>
+    <p id="result"></p>
+    <p class="error" id="error"></p>
+  </div>
+<script>
+document.getElementById("uploadForm").addEventListener("submit", async function(e) {
+  e.preventDefault();
+  const file = document.getElementById("fileInput").files[0];
+  const formData = new FormData();
+  formData.append("file", file);
+  try {
+    const res = await fetch("/upload", {
+      method: "POST",
+      body: formData
+    });
+    if (!res.ok) throw new Error("上传失败");
+    const json = await res.json();
+    document.getElementById("result").innerHTML = `
+      ✅ Upload success<br/>
+      file_id:  <code>${json.file_id}</code><br/>
+      <a href="/download/${json.file_id}" target="_blank">clicked download</a>
+    `;
+    document.getElementById("error").innerText = "";
+  } catch (err) {
+    console.error(err);
+    document.getElementById("error").innerText = "上传失败，请重试";
+    document.getElementById("result").innerText = "";
+  }
+});
+</script>
+</body>
+</html>
