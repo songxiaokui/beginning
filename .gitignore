@@ -27,3 +27,4 @@ go.work
 /BigModel/LangChain/SourceCode/.env
 /linux/fq/sing-box
 /linux/fq/config.json
+/basics/分布式存储系统/MinIO/.rootfs/

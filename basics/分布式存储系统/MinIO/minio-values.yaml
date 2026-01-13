@@ -1,0 +1,28 @@
+# minio-values.yaml
+rootUser: admin
+rootPassword: admin123456
+
+mode: standalone
+
+service:
+  type: NodePort
+  nodePorts:
+    api: 31000
+    console: 31001
+
+persistence:
+  enabled: true
+  existingClaim: minio-local-pvc
+
+resources:
+  requests:
+    memory: 128Mi
+    cpu: 100m
+  limits:
+    memory: 256Mi
+    cpu: 200m
+
+buckets:
+  - name: mybucket
+    policy: none
+    purge: false
