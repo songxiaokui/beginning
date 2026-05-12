@@ -28,3 +28,4 @@ go.work
 /linux/fq/sing-box
 /linux/fq/config.json
 /basics/分布式存储系统/MinIO/.rootfs/
+/language/go/加密/config.yaml
