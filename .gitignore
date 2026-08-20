@@ -29,3 +29,10 @@ go.work
 /linux/fq/config.json
 /basics/分布式存储系统/MinIO/.rootfs/
 /language/go/加密/config.yaml
+/simulator/openfoam/images/
+/simulator/openfoam/tar/
+/simulator/openfoam/v2606/tar/
+/simulator/openfoam/13/tar/
+/simulator/openfoam/13/images/
+/simulator/openfoam/v2606/images/
+/simulator/openfoam/v2606/tar/

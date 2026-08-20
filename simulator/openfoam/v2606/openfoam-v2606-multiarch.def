@@ -1,0 +1,155 @@
+Bootstrap: docker
+From: ubuntu:24.04
+
+%labels
+    Author Erubus Song
+    OpenFOAM-Version v2606
+    OpenFOAM-Distribution OpenCFD
+    Architecture multiarch-amd64-arm64
+    Base-OS Ubuntu-24.04
+    MPI SYSTEMOPENMPI
+
+%arguments
+    target_arch="auto"
+    build_jobs="4"
+
+%help
+    OpenCFD OpenFOAM v2606 native multi-architecture build.
+    Build arm64 on the Kylin ARM64 host and amd64 on an AMD64 host.
+
+    Runtime:
+      singularity run openfoam-v2606-amd64.sif simpleFoam -help
+      singularity run openfoam-v2606-amd64.sif blockMesh -help
+      singularity run openfoam-v2606-amd64.sif decomposePar -help
+      singularity run openfoam-v2606-amd64.sif reconstructPar -help
+
+%files
+    ./tar/OpenFOAM-v2606.tgz  /opt/openfoam/OpenFOAM-v2606.tgz
+    ./tar/ThirdParty-v2606.tgz /opt/openfoam/ThirdParty-v2606.tgz
+
+%environment
+    export LC_ALL="C.UTF-8"
+    export LANG="C.UTF-8"
+    export FOAM_INST_DIR="/opt/openfoam"
+    export WM_PROJECT="OpenFOAM"
+    export WM_PROJECT_VERSION="v2606"
+    export WM_PROJECT_DIR="/opt/openfoam/OpenFOAM-v2606"
+    export WM_THIRD_PARTY_DIR="/opt/openfoam/ThirdParty-v2606"
+    export OPENFOAM_BASHRC="${WM_PROJECT_DIR}/etc/bashrc"
+
+%post -c /bin/bash
+    set -o pipefail
+    export DEBIAN_FRONTEND=noninteractive
+    export FOAM_INST_DIR="/opt/openfoam"
+    export WM_PROJECT="OpenFOAM"
+    export WM_PROJECT_VERSION="v2606"
+    export WM_PROJECT_DIR="${FOAM_INST_DIR}/OpenFOAM-v2606"
+    export WM_THIRD_PARTY_DIR="${FOAM_INST_DIR}/ThirdParty-v2606"
+
+    TARGET_ARCH="{{ target_arch }}"
+    BUILD_JOBS="{{ build_jobs }}"
+    normalize_arch() {
+        case "$1" in
+            auto) echo auto ;;
+            amd64|x86_64) echo amd64 ;;
+            arm64|aarch64) echo arm64 ;;
+            *) return 1 ;;
+        esac
+    }
+
+    ACTUAL_ARCH="$(dpkg --print-architecture)"
+    TARGET_ARCH="$(normalize_arch "${TARGET_ARCH}")" || exit 1
+    [ "${TARGET_ARCH}" = auto ] && TARGET_ARCH="${ACTUAL_ARCH}"
+    case "${ACTUAL_ARCH}" in
+        amd64) EXPECTED_WM_ARCH=linux64; EXPECTED_WM_OPTIONS=linux64GccDPInt32Opt ;;
+        arm64) EXPECTED_WM_ARCH=linuxARM64; EXPECTED_WM_OPTIONS=linuxARM64GccDPInt32Opt ;;
+        *) echo "[ERROR] Unsupported architecture: ${ACTUAL_ARCH}"; exit 1 ;;
+    esac
+    [ "${TARGET_ARCH}" = "${ACTUAL_ARCH}" ] || {
+        echo "[ERROR] Native build required: target=${TARGET_ARCH}, host=${ACTUAL_ARCH}"; exit 1;
+    }
+    [[ "${BUILD_JOBS}" =~ ^[1-9][0-9]*$ ]] || {
+        echo "[ERROR] build_jobs must be a positive integer"; exit 1;
+    }
+
+    apt-get update || exit 1
+    apt-get install -y --no-install-recommends \
+        build-essential ca-certificates cmake autoconf autotools-dev \
+        gawk m4 flex libfl-dev bison git wget file \
+        zlib1g-dev libboost-system-dev libboost-thread-dev \
+        libopenmpi-dev openmpi-bin mpi-default-bin mpi-default-dev \
+        libgmp-dev libmpfr-dev libmpc-dev \
+        libfftw3-dev libscotch-dev libptscotch-dev libcgal-dev \
+        gnuplot libreadline-dev \
+        libncurses-dev libxt-dev || exit 1
+
+    cd "${FOAM_INST_DIR}" || exit 1
+    tar -xzf OpenFOAM-v2606.tgz || exit 1
+    tar -xzf ThirdParty-v2606.tgz || exit 1
+    [ -d "${WM_PROJECT_DIR}" ] || { echo "[ERROR] OpenFOAM-v2606 directory not found"; exit 1; }
+    [ -d "${WM_THIRD_PARTY_DIR}" ] || { echo "[ERROR] ThirdParty-v2606 directory not found"; exit 1; }
+
+    source "${WM_PROJECT_DIR}/etc/bashrc" || exit 1
+    echo "WM_PROJECT_DIR=${WM_PROJECT_DIR}"
+    echo "WM_THIRD_PARTY_DIR=${WM_THIRD_PARTY_DIR}"
+    echo "WM_ARCH=${WM_ARCH}"
+    echo "WM_OPTIONS=${WM_OPTIONS}"
+    echo "WM_MPLIB=${WM_MPLIB}"
+    [ "${WM_ARCH}" = "${EXPECTED_WM_ARCH}" ] || {
+        echo "[ERROR] Expected WM_ARCH=${EXPECTED_WM_ARCH}, got ${WM_ARCH}"; exit 1;
+    }
+    [ "${WM_OPTIONS}" = "${EXPECTED_WM_OPTIONS}" ] || {
+        echo "[ERROR] Expected WM_OPTIONS=${EXPECTED_WM_OPTIONS}, got ${WM_OPTIONS}"; exit 1;
+    }
+    [ "${WM_MPLIB}" = SYSTEMOPENMPI ] || {
+        echo "[ERROR] Expected WM_MPLIB=SYSTEMOPENMPI, got ${WM_MPLIB}"; exit 1;
+    }
+
+    mkdir -p /root/.OpenFOAM
+    echo 'export ParaView_TYPE=none' > /root/.OpenFOAM/prefs.sh
+    source "${WM_PROJECT_DIR}/etc/bashrc" || exit 1
+    echo "ParaView_TYPE=${ParaView_TYPE}"
+    [ "${ParaView_TYPE}" = none ] || {
+        echo "[ERROR] Expected ParaView_TYPE=none, got ${ParaView_TYPE}"; exit 1;
+    }
+
+    foamSystemCheck || exit 1
+    cd "${WM_PROJECT_DIR}" || exit 1
+    ./Allwmake -j "${BUILD_JOBS}" -s -l 2>&1 | tee log.Allwmake
+    [ "${PIPESTATUS[0]}" -eq 0 ] || exit 1
+
+    source "${WM_PROJECT_DIR}/etc/bashrc" || exit 1
+    foamInstallationTest > /tmp/foamInstallationTest.log 2>&1 || {
+        cat /tmp/foamInstallationTest.log
+        echo "[ERROR] foamInstallationTest failed"
+        exit 1
+    }
+
+    cat > /usr/local/bin/openfoam-v2606 <<'EOF'
+#!/bin/bash
+exec /bin/bash --noprofile --norc -c '
+set +e
+unset BASH_ENV ENV
+export FOAM_INST_DIR="/opt/openfoam"
+export WM_PROJECT="OpenFOAM"
+export WM_PROJECT_VERSION="v2606"
+export WM_PROJECT_DIR="/opt/openfoam/OpenFOAM-v2606"
+export WM_THIRD_PARTY_DIR="/opt/openfoam/ThirdParty-v2606"
+source "${WM_PROJECT_DIR}/etc/bashrc"
+status=$?
+if [ "${status}" -ne 0 ]; then
+    echo "[ERROR] Failed to source ${WM_PROJECT_DIR}/etc/bashrc" >&2
+    exit "${status}"
+fi
+exec "$@"
+' openfoam-v2606 "$@"
+EOF
+    chmod 755 /usr/local/bin/openfoam-v2606
+
+    rm -f /opt/openfoam/OpenFOAM-v2606.tgz /opt/openfoam/ThirdParty-v2606.tgz
+    apt-get clean
+    rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
+
+%runscript
+    #!/bin/bash
+    exec /usr/local/bin/openfoam-v2606 "$@"

@@ -1,0 +1,28 @@
+        
+/*--------------------------  炽橙数字科技有限公司  ---------------------------*\
+| 																			  |	
+|--------------------------------- *- C++ -* ---------------------------------|
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2412                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+
+
+FoamFile
+{
+    version    2.0;
+    format    ascii;
+    class    dictionary;
+    object    transportProperties;
+}
+
+
+transportModel    Newtonian;
+
+nu    1.529;
+
+rho    1.196;
+
+
+

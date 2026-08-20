@@ -1,0 +1,135 @@
+        
+/*--------------------------  炽橙数字科技有限公司  ---------------------------*\
+| 																			  |	
+|--------------------------------- *- C++ -* ---------------------------------|
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2412                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+
+
+FoamFile
+{
+    version    2.0;
+    format    ascii;
+    class    dictionary;
+    object    controlDict;
+}
+
+
+application    simpleFoam;
+
+
+
+startTime    0;
+
+stopAt    endTime;
+
+startFrom    latestTime;
+
+purgeWrite    0;
+
+writeFormat    ascii;
+
+writePrecision    6;
+
+writeCompression    off;
+
+timeFormat    general;
+
+timePrecision    6;
+
+runTimeModifiable    true;
+
+endTime    0.5;
+
+deltaT    0.05;
+
+writeControl    timeStep;
+
+writeInterval    5;
+
+
+
+functions
+{
+    magU
+    {
+        type    mag;
+        enabled    true;
+        field    U;
+        result    magU;
+        libs    (fieldFunctionObjects);
+        writeControl    timeStep;
+        writeInterval    5;
+
+    }
+    c_7y6tsvAQh
+    {
+        type    probes;
+        libs    (sampling);
+        writeControl    timeStep;
+        writeInterval    5;
+        fields    (magU);
+        probeLocations
+        (
+            (0.82380235 0.13135065 0.4020316)
+        );
+    }
+    c_7y6tsvAQi
+    {
+        type    probes;
+        libs    (sampling);
+        writeControl    timeStep;
+        writeInterval    5;
+        fields    (p);
+        probeLocations
+        (
+            (0.16995415 0.10179272 0.40202847)
+        );
+    }
+    c_7y6tsvAQj
+    {
+        type    surfaceFieldValue;
+        libs    (fieldFunctionObjects);
+        writeControl    timeStep;
+        writeInterval    5;
+        log    true;
+        writeFields    no;
+        operation    areaAverage;
+        regionType    patch;
+        name    wall-6;
+        fields    (magU);
+
+    }
+    c_7y6tsvAQk
+    {
+        type    surfaceFieldValue;
+        libs    (fieldFunctionObjects);
+        writeControl    timeStep;
+        writeInterval    5;
+        log    true;
+        writeFields    no;
+        operation    areaAverage;
+        regionType    patch;
+        name    wall-4;
+        fields    (p);
+
+    }
+    c_7y6tsvAQm
+    {
+        type    volFieldValue;
+        libs    (fieldFunctionObjects);
+        writeControl    timeStep;
+        writeInterval    5;
+        log    true;
+        writeFields    no;
+        operation    volAverage;
+        regionType    cellZone;
+        name    __sf-0;
+        fields    (magU);
+
+    }
+}
+

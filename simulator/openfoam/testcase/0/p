@@ -1,0 +1,68 @@
+        
+/*--------------------------  炽橙数字科技有限公司  ---------------------------*\
+| 																			  |	
+|--------------------------------- *- C++ -* ---------------------------------|
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2412                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+
+
+FoamFile
+{
+    version    2.0;
+    format    ascii;
+    class    volScalarField;
+    object    p;
+}
+
+
+internalField   uniform    0;
+
+
+
+dimensions    [0  2  -2  0  0  0  0];
+
+
+
+boundaryField
+{
+    pressure-outlet-2
+    {
+        type    fixedValue;
+        value    uniform 0;
+
+    }
+    velocity-inlet-1
+    {
+        type    zeroGradient;
+
+    }
+    wall-3
+    {
+        type    zeroGradient;
+
+    }
+    wall-4
+    {
+        type    zeroGradient;
+
+    }
+    wall-5
+    {
+        type    zeroGradient;
+
+    }
+    wall-6
+    {
+        type    zeroGradient;
+
+    }
+    wall-7
+    {
+        type    zeroGradient;
+
+    }
+}
+

@@ -1,0 +1,311 @@
+Bootstrap: docker
+From: ubuntu:24.04
+
+%labels
+    Author Erubus Song
+    OpenFOAM-Version 13
+    Architecture multiarch-amd64-arm64
+    Base-OS Ubuntu-24.04
+    SingularityCE-Tested 4.1.5
+    MPI SYSTEMOPENMPI
+    Description OpenFOAM 13 source build for native amd64 or arm64
+
+%arguments
+    target_arch="auto"
+    build_jobs="4"
+
+%help
+    OpenFOAM 13 multi-architecture definition file.
+
+    Supported target_arch values:
+      auto
+      amd64
+      arm64
+
+    Native builds are expected. The target architecture must match the
+    Ubuntu rootfs / build host architecture used by SingularityCE.
+
+    Build on ARM64:
+      singularity build \
+        --build-arg target_arch=arm64 \
+        --build-arg build_jobs=8 \
+        openfoam-13-arm64.sif \
+        openfoam13-multiarch.def
+
+    Build on AMD64:
+      singularity build \
+        --build-arg target_arch=amd64 \
+        --build-arg build_jobs=4 \
+        openfoam-13-amd64.sif \
+        openfoam13-multiarch.def
+
+    Auto-detect native architecture:
+      singularity build \
+        openfoam-13.sif \
+        openfoam13-multiarch.def
+
+    Runtime:
+      singularity exec openfoam-13.sif openfoam13 foamRun -help
+      singularity run openfoam-13.sif foamRun -help
+
+%files
+    ./tar/ThirdParty-13-version-13.tar.gz /opt/openfoam/ThirdParty-13-version-13.tar.gz
+    ./tar/OpenFOAM-13-version-13.tar.gz   /opt/openfoam/OpenFOAM-13-version-13.tar.gz
+
+%environment
+    export LC_ALL="C.UTF-8"
+    export LANG="C.UTF-8"
+    export OPENFOAM_PATH="/opt/openfoam"
+    export WM_PROJECT_DIR="/opt/openfoam/OpenFOAM-13"
+    export OPENFOAM_VERSION="13"
+    export FOAM_INST_DIR="/opt/openfoam"
+    export OPENFOAM_BASHRC="${WM_PROJECT_DIR}/etc/bashrc"
+
+%post -c /bin/bash
+    set -o pipefail
+
+    export DEBIAN_FRONTEND=noninteractive
+    export OPENFOAM_PATH="/opt/openfoam"
+    export WM_PROJECT_DIR="${OPENFOAM_PATH}/OpenFOAM-13"
+
+    TARGET_ARCH="{{ target_arch }}"
+    BUILD_JOBS="{{ build_jobs }}"
+
+    normalize_arch()
+    {
+        case "$1" in
+            auto)
+                echo "auto"
+                ;;
+            amd64|x86_64)
+                echo "amd64"
+                ;;
+            arm64|aarch64)
+                echo "arm64"
+                ;;
+            *)
+                return 1
+                ;;
+        esac
+    }
+
+    echo "============================================================"
+    echo "[1/7] Detect and validate target architecture"
+    echo "============================================================"
+
+    ACTUAL_ARCH="$(dpkg --print-architecture)"
+    MACHINE_ARCH="$(uname -m)"
+
+    NORMALIZED_TARGET_ARCH="$(normalize_arch "${TARGET_ARCH}")" || {
+        echo "[ERROR] Unsupported target_arch=${TARGET_ARCH}"
+        echo "[ERROR] Supported values: auto, amd64, arm64"
+        exit 1
+    }
+
+    case "${ACTUAL_ARCH}" in
+        amd64)
+            EXPECTED_WM_ARCH="linux64"
+            EXPECTED_WM_OPTIONS="linux64GccDPInt32Opt"
+            ;;
+        arm64)
+            EXPECTED_WM_ARCH="linuxArm64"
+            EXPECTED_WM_OPTIONS="linuxArm64GccDPInt32Opt"
+            ;;
+        *)
+            echo "[ERROR] Unsupported build architecture: ${ACTUAL_ARCH}"
+            echo "[ERROR] Supported architectures: amd64, arm64"
+            exit 1
+            ;;
+    esac
+
+    if [ "${NORMALIZED_TARGET_ARCH}" = "auto" ]; then
+        NORMALIZED_TARGET_ARCH="${ACTUAL_ARCH}"
+    fi
+
+    echo "requested architecture : ${TARGET_ARCH}"
+    echo "target architecture    : ${NORMALIZED_TARGET_ARCH}"
+    echo "dpkg architecture      : ${ACTUAL_ARCH}"
+    echo "machine architecture   : ${MACHINE_ARCH}"
+    echo "expected WM_ARCH       : ${EXPECTED_WM_ARCH}"
+    echo "expected WM_OPTIONS    : ${EXPECTED_WM_OPTIONS}"
+    echo "build jobs             : ${BUILD_JOBS}"
+
+    if [ "${NORMALIZED_TARGET_ARCH}" != "${ACTUAL_ARCH}" ]; then
+        echo "[ERROR] Target architecture mismatch"
+        echo "[ERROR] target_arch=${NORMALIZED_TARGET_ARCH}"
+        echo "[ERROR] rootfs/build architecture=${ACTUAL_ARCH}"
+        echo "[ERROR] This definition performs a native OpenFOAM source build."
+        echo "[ERROR] Build amd64 on amd64 and arm64 on arm64."
+        exit 1
+    fi
+
+    if ! [[ "${BUILD_JOBS}" =~ ^[1-9][0-9]*$ ]]; then
+        echo "[ERROR] build_jobs must be a positive integer: ${BUILD_JOBS}"
+        exit 1
+    fi
+
+    printf '%s\n' "${ACTUAL_ARCH}" > /etc/openfoam-target-arch
+    printf '%s\n' "${EXPECTED_WM_ARCH}" > /etc/openfoam-wm-arch
+
+    cat >> "${SINGULARITY_ENVIRONMENT}" <<EOF
+export OPENFOAM_TARGET_ARCH="${ACTUAL_ARCH}"
+EOF
+
+    echo "============================================================"
+    echo "[2/7] Install build dependencies"
+    echo "============================================================"
+
+    apt-get update || exit 1
+    apt-get clean
+
+    rm -rf /var/cache/apt/archives/partial
+    mkdir -p /var/cache/apt/archives/partial
+
+    apt-get \
+        -o APT::Sandbox::User=root \
+        install -y \
+        build-essential \
+        flex \
+        bison \
+        git \
+        wget \
+        file \
+        cmake \
+        zlib1g-dev \
+        libboost-system-dev \
+        libboost-thread-dev \
+        libopenmpi-dev \
+        openmpi-bin \
+        gnuplot \
+        libreadline-dev \
+        libncurses-dev \
+        libxt-dev || exit 1
+
+    echo "============================================================"
+    echo "[3/7] Download OpenFOAM 13 and ThirdParty 13"
+    echo "============================================================"
+
+    mkdir -pv "${OPENFOAM_PATH}"
+    cd "${OPENFOAM_PATH}" || exit 1
+
+    # wget -O - http://dl.openfoam.org/source/13 | tar xvz || exit 1
+    # wget -O - http://dl.openfoam.org/third-party/13 | tar xvz || exit 1
+    tar -zxvf OpenFOAM-13-version-13.tar.gz
+    tar -zxvf ThirdParty-13-version-13.tar.gz
+
+    mv OpenFOAM-13-version-13 OpenFOAM-13 || exit 1
+    mv ThirdParty-13-version-13 ThirdParty-13 || exit 1
+
+    echo "============================================================"
+    echo "[4/7] Configure OpenFOAM environment"
+    echo "============================================================"
+
+    export WM_PROJECT_DIR="${OPENFOAM_PATH}/OpenFOAM-13"
+
+    source "${WM_PROJECT_DIR}/etc/bashrc" || exit 1
+
+    echo "WM_PROJECT_DIR=${WM_PROJECT_DIR}"
+    echo "WM_THIRD_PARTY_DIR=${WM_THIRD_PARTY_DIR}"
+    echo "WM_ARCH=${WM_ARCH}"
+    echo "WM_OPTIONS=${WM_OPTIONS}"
+    echo "WM_MPLIB=${WM_MPLIB}"
+    echo "FOAM_MPI=${FOAM_MPI}"
+
+    if [ "${WM_ARCH}" != "${EXPECTED_WM_ARCH}" ]; then
+        echo "[ERROR] Expected WM_ARCH=${EXPECTED_WM_ARCH}, got ${WM_ARCH}"
+        exit 1
+    fi
+
+    if [ "${WM_OPTIONS}" != "${EXPECTED_WM_OPTIONS}" ]; then
+        echo "[ERROR] Expected WM_OPTIONS=${EXPECTED_WM_OPTIONS}, got ${WM_OPTIONS}"
+        exit 1
+    fi
+
+    if [ "${WM_MPLIB}" != "SYSTEMOPENMPI" ]; then
+        echo "[ERROR] Expected WM_MPLIB=SYSTEMOPENMPI, got ${WM_MPLIB}"
+        exit 1
+    fi
+
+    # Site-level preferences are visible to non-root Slurm users.
+    mkdir -p "/root/.OpenFOAM"
+
+    cat > "/root/.OpenFOAM/prefs.sh" <<'EOF'
+export ParaView_TYPE=none
+EOF
+
+    source "${WM_PROJECT_DIR}/etc/bashrc" || exit 1
+
+    echo "ParaView_TYPE=${ParaView_TYPE}"
+
+    if [ "${ParaView_TYPE}" != "none" ]; then
+        echo "[ERROR] Expected ParaView_TYPE=none, got ${ParaView_TYPE}"
+        exit 1
+    fi
+
+    echo "============================================================"
+    echo "[5/7] Compile OpenFOAM 13"
+    echo "============================================================"
+
+    cd "${WM_PROJECT_DIR}" || exit 1
+    source "${WM_PROJECT_DIR}/etc/bashrc" || exit 1
+
+    ./Allwmake -j "${BUILD_JOBS}" 2>&1 | tee log.Allwmake
+    BUILD_STATUS=${PIPESTATUS[0]}
+
+    if [ "${BUILD_STATUS}" -ne 0 ]; then
+        echo "[ERROR] Allwmake failed with status ${BUILD_STATUS}"
+        exit "${BUILD_STATUS}"
+    fi
+
+    echo "============================================================"
+    echo "[6/7] Validate compiled applications"
+    echo "============================================================"
+
+    source "${WM_PROJECT_DIR}/etc/bashrc" || exit 1
+
+    which foamRun || exit 1
+    which blockMesh || exit 1
+    which decomposePar || exit 1
+    which reconstructPar || exit 1
+
+    echo "===== foamRun architecture ====="
+    file "$(which foamRun)" || exit 1
+
+    foamRun -help >/dev/null 2>&1 || exit 1
+
+    if ldd "$(which foamRun)" | grep -q "not found"; then
+        echo "[ERROR] Missing dynamic library:"
+        ldd "$(which foamRun)"
+        exit 1
+    fi
+
+    echo "============================================================"
+    echo "[7/7] Install unified entry and cleanup"
+    echo "============================================================"
+
+    cat > /usr/local/bin/openfoam13 <<'EOF'
+#!/bin/bash
+export LC_ALL="C.UTF-8"
+export LANG="C.UTF-8"
+export OPENFOAM_PATH="/opt/openfoam"
+export WM_PROJECT_DIR="/opt/openfoam/OpenFOAM-13"
+export OPENFOAM_VERSION="13"
+export FOAM_INST_DIR="/opt/openfoam"
+export OPENFOAM_BASHRC="${WM_PROJECT_DIR}/etc/bashrc"
+source /opt/openfoam/OpenFOAM-13/etc/bashrc || exit 1
+
+exec "$@"
+EOF
+
+    chmod 755 /usr/local/bin/openfoam13
+    openfoam13 foamRun -help >/dev/null 2>&1 || exit 1
+
+    apt-get clean
+    rm -rf /var/lib/apt/lists/*
+    rm -rf /var/cache/apt/archives/partial/*
+
+    echo "[OK] OpenFOAM 13 ${ACTUAL_ARCH} build completed"
+
+%runscript
+    #!/bin/bash
+    exec /usr/local/bin/openfoam13 "$@"
